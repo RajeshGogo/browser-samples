@@ -94,8 +94,6 @@
       function gapiLoaded() {
               gapi.load('client', intializeGapiClient);
        }
-
-
       /**
        * Callback after the API client is loaded. Loads the
        * discovery doc to initialize the API.
@@ -113,19 +111,11 @@
        * Callback after Google Identity Services are loaded.
        */
       function gisLoaded() {
-      try
-      {
         tokenClient = google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
           scope: SCOPES.join(' '),
           callback: '', // defined later
         });
-      }
-      catch(ex)
-      {
-       console.log("API returned an error in gisLoaded ",ex.message)
-       return;
-      }
         gisInited = true;
         maybeEnableButtons();
       }
@@ -143,15 +133,13 @@
        *  Sign in the user upon button click.
        */
       function handleAuthClick() {
-      try
-      {
         tokenClient.callback = async (resp) => {
           if (resp.error !== undefined) {
             throw (resp);
           }
           document.getElementById('signout_button').style.visibility = 'visible';
           document.getElementById('authorize_button').innerText = 'Refresh';
-
+          try {
           describe('Google Slides API', function() {
             this.timeout(10000);
               it('should create a presentation', testCreatePresentation);
@@ -165,6 +153,10 @@
               it('should update text style', testTextStyleUpdate);
               it('should create bulleted text', testCreateBulletedText);
            });
+          } catch (err) {
+            document.getElementById('content').innerText = err.message;
+            return;
+          }
           after(tearDown);
           mocha.run();
         };
@@ -177,20 +169,12 @@
           // Skip display of account chooser and consent dialog for an existing session.
           tokenClient.requestAccessToken({prompt: ''});
         }
-     }
-     catch(ex)
-     {
-      console.log("API returned an error in handleAuthClick",ex.message)
-      return;
-     }
     }
 
       /**
        *  Sign out the user upon button click.
        */
       function handleSignoutClick() {
-      try
-      {
         const token = gapi.client.getToken();
         if (token !== null) {
           google.accounts.oauth2.revoke(token.access_token);
@@ -199,12 +183,6 @@
           document.getElementById('authorize_button').innerText = 'Authorize';
           document.getElementById('signout_button').style.visibility = 'hidden';
         }
-      }
-      catch(ex)
-      {
-       console.log("API returned an error in handleSignoutClick",ex.message)
-       return;
-      }
       }
 
     </script>
